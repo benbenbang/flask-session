@@ -539,11 +539,14 @@ class SqlAlchemySessionInterface(SessionInterface):
         # self.db.create_all()
         self.sql_session_model = Session
 
+    # fmt: off
     def open_session(self, app, request):
         sid = request.cookies.get(app.session_cookie_name)
+
         if not sid:
             sid = self._generate_sid()
             return self.session_class(sid=sid, permanent=self.permanent)
+
         if self.use_signer:
             signer = self._get_signer(app)
             if signer is None:
@@ -557,7 +560,12 @@ class SqlAlchemySessionInterface(SessionInterface):
 
         store_id = self.key_prefix + sid
         saved_session = self.sql_session_model.query.filter_by(session_id=store_id).first()
-        if saved_session and saved_session.expiry <= datetime.utcnow():
+
+        if (
+            saved_session
+            and isinstance(saved_session.expiry, datetime)
+            and saved_session.expiry <= datetime.utcnow()
+        ):
             # Delete expired session
             self.db.session.delete(saved_session)
             self.db.session.commit()
@@ -567,7 +575,7 @@ class SqlAlchemySessionInterface(SessionInterface):
                 val = saved_session.data
                 data = self.serializer.loads(want_bytes(val))
                 return self.session_class(data, sid=sid)
-            except:
+            except Exception:
                 return self.session_class(sid=sid, permanent=self.permanent)
         return self.session_class(sid=sid, permanent=self.permanent)
 
