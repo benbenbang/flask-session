@@ -36,9 +36,20 @@ repos:
           - "--indent=2"
   - repo: local
     hooks:
+      - id: check-extension
+        name: Check Ipynb
+        entry: ./.plugins/check_extension.sh
+        language: script
+        args: [ipynb]
+      - id: dockerfile-lint
+        name: Lint Dockerfile
+        entry: ./.plugins/lint_dockerfile.sh
+        language: system
+        files: .*Dockerfile.*$
+        pass_filenames: true
       - id: validate-commit-msg
         name: Commit Message is Valid
         language: pygrep
-        entry: ^(build|ci|docs|feat|fix|perf|refactor|style|test|wip|hotfix)(\([\w,\-,\(,\),\/]+\))?(:)\s{1}([\w,\W,:]+)
+        entry: ^(build|ci|docs|feat|fix|perf|refactor|style|test|wip|hotfix)(\([a-z,A-Z,0-9,-]+\))?(:)\s{1}([a-z,A-Z,0-9,\[,\],\-,\_,\/,.,:, ])+$
         stages: [commit-msg]
         args: [--negate]

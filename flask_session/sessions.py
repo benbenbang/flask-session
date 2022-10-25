@@ -138,7 +138,7 @@ class RedisSessionInterface(SessionInterface):
             try:
                 data = self.serializer.loads(val)
                 return self.session_class(data, sid=sid)
-            except:
+            except Exception:
                 return self.session_class(sid=sid, permanent=self.permanent)
         return self.session_class(sid=sid, permanent=self.permanent)
 
@@ -271,7 +271,7 @@ class MemcachedSessionInterface(SessionInterface):
                     val = want_bytes(val)
                 data = self.serializer.loads(val)
                 return self.session_class(data, sid=sid)
-            except:
+            except Exception:
                 return self.session_class(sid=sid, permanent=self.permanent)
         return self.session_class(sid=sid, permanent=self.permanent)
 
@@ -454,7 +454,7 @@ class MongoDBSessionInterface(SessionInterface):
                 val = document["val"]
                 data = self.serializer.loads(want_bytes(val))
                 return self.session_class(data, sid=sid)
-            except:
+            except Exception:
                 return self.session_class(sid=sid, permanent=self.permanent)
         return self.session_class(sid=sid, permanent=self.permanent)
 
@@ -475,7 +475,7 @@ class MongoDBSessionInterface(SessionInterface):
             conditional_cookie_kwargs["samesite"] = self.get_cookie_samesite(app)
         expires = self.get_expiration_time(app, session)
         val = self.serializer.dumps(dict(session))
-        self.store.update({"id": store_id}, {"id": store_id, "val": val, "expiration": expires}, True)
+        self.store.update_one({"id": store_id}, {"$set": {store_id: val}, "expiration": expires}, True)
         if self.use_signer:
             session_id = self._get_signer(app).sign(want_bytes(session.sid))
         else:
