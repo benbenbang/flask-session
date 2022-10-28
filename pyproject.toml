@@ -1,10 +1,12 @@
 [tool.poetry]
-name = "flask-session"
+name = "flask-providers-session"
 version = "0.4.0"
 description = "Fork version flask session"
 authors = ["benbenbang <ben.chen@vestiairecollective.com>"]
 readme = "README.md"
-packages = [{include = "flask_session"}]
+packages = [
+    {include = "flask_session"}
+]
 
 [tool.poetry.dependencies]
 python = "^3.7.2"
