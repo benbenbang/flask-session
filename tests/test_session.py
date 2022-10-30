@@ -8,7 +8,6 @@ import flask
 import pytest
 
 # flask providers - flask session
-# vcollective flask extension
 from flask_session import Session
 
 

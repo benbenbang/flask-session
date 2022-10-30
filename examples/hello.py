@@ -12,7 +12,6 @@
 from flask import Flask, session
 
 # flask providers - flask session
-# vcollective flask extension
 from flask_session import Session
 
 SESSION_TYPE = "redis"
