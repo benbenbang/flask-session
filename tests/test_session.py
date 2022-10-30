@@ -149,11 +149,16 @@ def test_mongodb_session(mocker):
 
 @pytest.mark.unittests
 def test_flasksqlalchemy_session():
+
     app = flask.Flask(__name__)
     app.debug = True
     app.config["SESSION_TYPE"] = "sqlalchemy"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///sessions.db"
+
     Session(app)
+
+    # create the database and the db-table
+    app.session_interface.db.create_all()
 
     @app.route("/set", methods=["POST"])
     def set():
@@ -172,19 +177,23 @@ def test_flasksqlalchemy_session():
     c = app.test_client()
     assert c.post("/set", data={"value": "42"}).data == (b"value set")
     assert c.get("/get").data == b"42"
-    c.post("/delete")
+    assert c.post("/delete").data == b"value deleted"
 
 
 @pytest.mark.unittests
 def test_flasksqlalchemy_session_with_signer():
+
     app = flask.Flask(__name__)
     app.debug = True
     app.secret_key = "test_secret_key"
     app.config["SESSION_TYPE"] = "sqlalchemy"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///sessions.db"
     app.config["SESSION_USE_SIGNER"] = True
 
     Session(app)
+
+    # create the database and the db-table
+    app.session_interface.db.create_all()
 
     @app.route("/set", methods=["POST"])
     def set():
@@ -203,7 +212,7 @@ def test_flasksqlalchemy_session_with_signer():
     c = app.test_client()
     assert c.post("/set", data={"value": "42"}).data == b"value set"
     assert c.get("/get").data == b"42"
-    c.post("/delete")
+    assert c.post("/delete").data == b"value deleted"
 
 
 @pytest.mark.unittests
