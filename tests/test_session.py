@@ -154,6 +154,7 @@ def test_flasksqlalchemy_session():
     app.debug = True
     app.config["SESSION_TYPE"] = "sqlalchemy"
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///sessions.db"
+    # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
     Session(app)
 
@@ -189,6 +190,7 @@ def test_flasksqlalchemy_session_with_signer():
     app.config["SESSION_TYPE"] = "sqlalchemy"
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///sessions.db"
     app.config["SESSION_USE_SIGNER"] = True
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
     Session(app)
 
