@@ -9,28 +9,16 @@
     :license: BSD, see LICENSE for more details.
 """
 # standard library
-import sys
+import pickle
 import time
 from datetime import datetime
 from uuid import uuid4
-
-try:
-    # pypi/conda library
-    import cPickle as pickle
-except ImportError:
-    import pickle
 
 # pypi/conda library
 from flask.sessions import SessionInterface as FlaskSessionInterface
 from flask.sessions import SessionMixin
 from itsdangerous import BadSignature, Signer, want_bytes
 from werkzeug.datastructures import CallbackDict
-
-PY2 = sys.version_info[0] == 2
-if not PY2:
-    text_type = str
-else:
-    text_type = unicode
 
 
 def total_seconds(td):
@@ -131,7 +119,7 @@ class RedisSessionInterface(SessionInterface):
                 sid = self._generate_sid()
                 return self.session_class(sid=sid, permanent=self.permanent)
 
-        if not PY2 and not isinstance(sid, text_type):
+        if not isinstance(sid, str):
             sid = sid.decode("utf-8", "strict")
         val = self.redis.get(self.key_prefix + sid)
         if val is not None:
@@ -262,13 +250,10 @@ class MemcachedSessionInterface(SessionInterface):
                 return self.session_class(sid=sid, permanent=self.permanent)
 
         full_session_key = self.key_prefix + sid
-        if PY2 and isinstance(full_session_key, unicode):
-            full_session_key = full_session_key.encode("utf-8")
         val = self.client.get(full_session_key)
         if val is not None:
             try:
-                if not PY2:
-                    val = want_bytes(val)
+                val = want_bytes(val)
                 data = self.serializer.loads(val)
                 return self.session_class(data, sid=sid)
             except Exception:
@@ -279,8 +264,6 @@ class MemcachedSessionInterface(SessionInterface):
         domain = self.get_cookie_domain(app)
         path = self.get_cookie_path(app)
         full_session_key = self.key_prefix + session.sid
-        if PY2 and isinstance(full_session_key, unicode):
-            full_session_key = full_session_key.encode("utf-8")
         if not session:
             if session.modified:
                 self.client.delete(full_session_key)
@@ -293,10 +276,7 @@ class MemcachedSessionInterface(SessionInterface):
         if self.has_same_site_capability:
             conditional_cookie_kwargs["samesite"] = self.get_cookie_samesite(app)
         expires = self.get_expiration_time(app, session)
-        if not PY2:
-            val = self.serializer.dumps(dict(session), 0)
-        else:
-            val = self.serializer.dumps(dict(session))
+        val = self.serializer.dumps(dict(session), 0)
         self.client.set(
             full_session_key, val, self._get_memcache_timeout(total_seconds(app.permanent_session_lifetime))
         )
