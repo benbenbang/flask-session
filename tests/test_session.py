@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import flask
 import pytest
 
-# vcollective flask extension
+# flask providers - flask session
 from flask_session import Session
 
 

@@ -11,7 +11,7 @@
 # pypi/conda library
 from flask import Flask, session
 
-# vcollective flask extension
+# flask providers - flask session
 from flask_session import Session
 
 SESSION_TYPE = "redis"

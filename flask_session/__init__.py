@@ -14,7 +14,7 @@ __version__ = "0.4.0"
 # standard library
 import os
 
-# vcollective flask extension
+# flask providers - flask session
 from flask_session.sessions import (
     FileSystemSessionInterface,
     MemcachedSessionInterface,
